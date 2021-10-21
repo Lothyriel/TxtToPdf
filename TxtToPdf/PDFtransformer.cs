@@ -67,13 +67,11 @@ namespace TxtToPdf
         }
         private static IEnumerable<string> ReadLines(Stream stream, Encoding encoding)
         {
-            using (var reader = new StreamReader(stream, encoding))
+            using var reader = new StreamReader(stream, encoding);
+            string line;
+            while ((line = reader.ReadLine()) != null)
             {
-                string line;
-                while ((line = reader.ReadLine()) != null)
-                {
-                    yield return line;
-                }
+                yield return line;
             }
         }
     }

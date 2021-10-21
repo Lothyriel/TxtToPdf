@@ -12,7 +12,7 @@ namespace TxtToPdf
     {
         public static ILogger<Worker> Logger = Worker.Logger;
 
-        private static string pastaEntrada = AppConfigManager.PastaEntrada;
+        private static readonly string pastaEntrada = AppConfigManager.PastaEntrada;
         private static TimeSpan tempoPassado;
         private static long arquivosConvertidos = 0;
         private static long arquivosParaConverter = 0;
