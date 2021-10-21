@@ -1,6 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace TxtToPdf
@@ -9,11 +12,27 @@ namespace TxtToPdf
     {
         public static ILogger<Worker> Logger = Worker.Logger;
 
+        private static string pastaEntrada = AppConfigManager.PastaEntrada;
+        private static TimeSpan tempoPassado;
+        private static long arquivosConvertidos = 0;
+        private static long arquivosParaConverter = 0;
+
+
+        private volatile string sexo;
+
         public static FileSystemWatcher Configure()
         {
             Logger.LogInformation("Configurando Watcher:{time}", DateTimeOffset.Now.TimeOfDay);
 
-            var watcher = new FileSystemWatcher(AppConfigManager.PastaWatcher);
+            if (!Directory.Exists(pastaEntrada))
+                Directory.CreateDirectory(pastaEntrada);
+
+            var pastaSaida = AppConfigManager.PastaSaida;
+            if (!Directory.Exists(AppConfigManager.PastaSaida))
+                Directory.CreateDirectory(pastaSaida);
+
+            var watcher = new FileSystemWatcher(pastaEntrada);
+            Logger.LogInformation("Escutando a pasta {path}", pastaEntrada);
 
             watcher.NotifyFilter = NotifyFilters.Attributes
                                  | NotifyFilters.CreationTime
@@ -32,11 +51,30 @@ namespace TxtToPdf
             return watcher;
         }
 
-        private static void OnCreated(object sender, FileSystemEventArgs e)
+        private static async void OnCreated(object sender, FileSystemEventArgs e)
         {
+            arquivosParaConverter++;
+
             Logger.LogInformation("Txt encontrado {arquivo} :{time}", e.Name, DateTimeOffset.Now.TimeOfDay);
 
-            Task.Run(() => PDFtransformer.GerarPDF(new FileStream(e.FullPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)));
+            Stopwatch sw = Stopwatch.StartNew();
+
+            await Task.Run(() => PDFtransformer.GerarPDF(new FileStream(e.FullPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)));
+
+            sw.Stop();
+
+            if (sw.Elapsed > tempoPassado)
+                tempoPassado = sw.Elapsed;
+
+            arquivosConvertidos++;
+
+            if (arquivosConvertidos == arquivosParaConverter) 
+            { 
+                Logger.LogInformation("Conversão de {arquivos} arquivos realizada em : {tempo}", arquivosConvertidos, tempoPassado.ToString());
+                arquivosParaConverter = 0;
+                arquivosConvertidos = 0;
+            }
+            
         }
     }
 }

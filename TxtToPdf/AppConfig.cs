@@ -14,8 +14,8 @@ namespace TxtToPdf
         }
         public static JObject AppConfig => JObject.Parse(File.ReadAllText(pathAppConfig));
 
-        public static string PastaWatcher => AppConfig["PathWatcher"].ToString();
-        public static string PastaPath => AppConfig["PathPasta"].ToString();
+        public static string PastaEntrada => AppConfig["PathEntrada"].ToString();
+        public static string PastaSaida => AppConfig["PathSaida"].ToString();
 
     }
 }

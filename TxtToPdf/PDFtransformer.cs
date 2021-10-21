@@ -20,13 +20,12 @@ namespace TxtToPdf
 
         public static void GerarPDF(FileStream arquivo)
         {
-
             var nomeArquivoCompleto = arquivo.Name.Split('\\').ToList().Last();
             var nomeArquivo = nomeArquivoCompleto.Split('.').ToList().First() + ".pdf";
 
-            Logger.LogInformation("Gerando PDF: {arquivo }{time}", nomeArquivo, DateTimeOffset.Now.TimeOfDay);
+            Logger.LogInformation("Gerando PDF: {arquivo } {time}", nomeArquivo, DateTimeOffset.Now.TimeOfDay);
 
-            var writer = new PdfWriter(AppConfigManager.PastaPath + $"\\{nomeArquivo}");
+            var writer = new PdfWriter(AppConfigManager.PastaSaida + $"\\{nomeArquivo}");
             var pdfDocument = new PdfDocument(writer);
             var pdf = new Document(pdfDocument);
 
@@ -63,6 +62,8 @@ namespace TxtToPdf
             pdf.Add(linhaHorizontal);
 
             pdf.Close();
+            Logger.LogInformation("PDF Gerado: {arquivo } {time}", nomeArquivo, DateTimeOffset.Now.TimeOfDay);
+
         }
         private static IEnumerable<string> ReadLines(Stream stream, Encoding encoding)
         {

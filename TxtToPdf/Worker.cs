@@ -1,6 +1,5 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,7 +21,7 @@ namespace TxtToPdf
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                Logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now.TimeOfDay);
+                //Logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now.TimeOfDay);
                 await Task.Delay(5000, stoppingToken);
             }
         }
