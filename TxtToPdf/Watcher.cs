@@ -17,9 +17,6 @@ namespace TxtToPdf
         private static long arquivosConvertidos = 0;
         private static long arquivosParaConverter = 0;
 
-
-        private volatile string sexo;
-
         public static FileSystemWatcher Configure()
         {
             Logger.LogInformation("Configurando Watcher:{time}", DateTimeOffset.Now.TimeOfDay);
