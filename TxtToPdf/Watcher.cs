@@ -2,8 +2,6 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace TxtToPdf
@@ -17,7 +15,8 @@ namespace TxtToPdf
         private static long arquivosConvertidos = 0;
         private static long arquivosParaConverter = 0;
 
-        public static FileSystemWatcher Configure()
+
+        public Watcher()
         {
             Logger.LogInformation("Configurando Watcher:{time}", DateTimeOffset.Now.TimeOfDay);
 
@@ -25,7 +24,7 @@ namespace TxtToPdf
                 Directory.CreateDirectory(pastaEntrada);
 
             var pastaSaida = AppConfigManager.PastaSaida;
-            if (!Directory.Exists(AppConfigManager.PastaSaida))
+            if (!Directory.Exists(pastaSaida))
                 Directory.CreateDirectory(pastaSaida);
 
             var watcher = new FileSystemWatcher(pastaEntrada);
@@ -45,10 +44,9 @@ namespace TxtToPdf
             watcher.Filter = "*.txt";
             watcher.IncludeSubdirectories = true;
             watcher.EnableRaisingEvents = true;
-            return watcher;
         }
 
-        private static async void OnCreated(object sender, FileSystemEventArgs e)
+        private async void OnCreated(object sender, FileSystemEventArgs e)
         {
             arquivosParaConverter++;
 
@@ -56,7 +54,7 @@ namespace TxtToPdf
 
             Stopwatch sw = Stopwatch.StartNew();
 
-            await Task.Run(() => PDFtransformer.GerarPDF(new FileStream(e.FullPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)));
+            await Task.Run(() => new PDFtransformer(new FileStream(e.FullPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)));
 
             sw.Stop();
 
@@ -65,13 +63,13 @@ namespace TxtToPdf
 
             arquivosConvertidos++;
 
-            if (arquivosConvertidos == arquivosParaConverter) 
-            { 
+            if (arquivosConvertidos == arquivosParaConverter)
+            {
                 Logger.LogInformation("Conversão de {arquivos} arquivos realizada em : {tempo}", arquivosConvertidos, tempoPassado.ToString());
                 arquivosParaConverter = 0;
                 arquivosConvertidos = 0;
+                tempoPassado = new TimeSpan();
             }
-            
         }
     }
 }
